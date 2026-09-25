@@ -11,9 +11,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 34'%3E%3Cpath d='M15 1 29 9v16L15 33 1 25V9z' fill='%23090908' stroke='%23E9AE34' stroke-width='2'/%3E%3Cpath d='M9 12h3v4h6v-4h3v10h-3v-4h-6v4H9z' fill='%23E9AE34'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.dexscreener.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#090908;--panel:#0D0C0A;--line:#26221A;--line2:#3A2F16;--gold:#E9AE34;--gold2:#F7CB6A;--text:#EDE6D6;--muted:#B8AF9C;--dim:#8C8472}
+:root{--bg:#090908;--panel:#0D0C0A;--line:#26221A;--line2:#3A2F16;--gold:#E9AE34;--gold2:#F7CB6A;--text:#EDE6D6;--muted:#B8AF9C;--dim:#8C8472;--up:#9FD6A0;--down:#E07B39}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:84px}
 body{margin:0;background:var(--bg);color:var(--text);font-family:"Instrument Sans","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -31,6 +32,10 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
 .nav{display:flex;gap:28px;font-size:12px}
 .nav a{color:var(--muted);text-decoration:none}.nav a:hover{color:var(--gold)}
+.hdr-right{display:flex;align-items:center;gap:14px}
+.hdr-live{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid var(--line2);font-size:11px;color:var(--text);text-decoration:none;white-space:nowrap}
+.hdr-live:hover{border-color:var(--gold);color:var(--text)}
+.hdr-live em{font-style:normal;color:var(--dim)}
 section{padding:104px 48px;border-bottom:1px solid #211D15}
 .eyebrow{font-size:12px;color:var(--gold)}
 h2{margin:0;font-size:52px;font-weight:800;line-height:1.02}
@@ -74,7 +79,7 @@ canvas{display:block;width:100%;height:auto;background:#0B0A08;border:1px solid 
 .field label{font-size:12px;color:var(--muted)}
 .field output{color:var(--gold)}
 input[type=range]{width:100%;accent-color:var(--gold);min-height:32px}
-.readout{font-size:15px;line-height:1.7;color:var(--muted)}
+.readout{font-size:15px;line-height:1.7;color:var(--muted);margin:0}
 .readout b{color:var(--text);font-weight:600}
 /* colony */
 .sim-grid{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:24px;align-items:start}
@@ -95,16 +100,53 @@ input[type=range]{width:100%;accent-color:var(--gold);min-height:32px}
 .log li b{color:var(--gold);font-weight:500}
 .banner{padding:14px 18px;border:1px solid var(--gold);background:rgba(233,174,52,.1);font-size:15px;line-height:1.6}
 .band{display:flex;flex-wrap:wrap;border:1px solid var(--line2)}
-.band span{flex:1 1 140px;padding:16px 14px;border-right:1px solid var(--line2);font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;color:var(--gold);text-align:center}
+.band span{flex:1 1 140px;padding:16px 14px;border-right:1px solid var(--line2);font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;color:var(--gold);text-align:center;transition:background .4s,color .4s}
 .band span:last-child{border-right:0}
+.band span.on{background:var(--gold);color:#120E05}
+.band span.next{box-shadow:inset 0 0 0 1px var(--gold2);color:var(--gold2)}
+/* live market */
+.live{display:flex;flex-direction:column;gap:22px}
+.live-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.live-dot{width:10px;height:10px;border-radius:50%;background:var(--dim);flex:none}
+.live-dot.on{background:var(--gold);animation:ping 2s ease-out infinite}
+.live-dot.err{background:var(--down)}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(233,174,52,.55)}100%{box-shadow:0 0 0 10px rgba(233,174,52,0)}}
+.live-upd{margin-left:auto;color:var(--dim)}
+.live-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.live-grid>div{background:var(--panel);padding:24px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.lbl{font-size:11px;color:var(--gold)}
+.live-mcap{font-size:64px;line-height:1;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:26px}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;padding:4px 8px;border:1px solid var(--line2);color:var(--muted)}
+.chip.up{color:var(--up);border-color:rgba(159,214,160,.35)}
+.chip.dn{color:var(--down);border-color:rgba(224,123,57,.4)}
+canvas#spark{background:transparent;border:0;border-top:1px solid var(--line);margin-top:auto;padding-top:8px}
+.gate-next{font-size:48px;line-height:1;font-weight:800;color:var(--gold)}
+.gbar{height:16px;background:#1E1B15;position:relative;border:1px solid var(--line2)}
+.gbar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--gold);transition:width .8s ease}
+.gate-sub{font-size:14px;line-height:1.6;color:var(--muted);margin:0}
+.gate-sub b{color:var(--text);font-weight:600}
+.gate-count{display:flex;gap:18px;flex-wrap:wrap;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.gate-count div{display:flex;flex-direction:column;gap:4px}
+.gate-count b{font-family:Syne,sans-serif;font-size:28px;font-weight:800}
+.gate-count span{font-size:11px;color:var(--dim)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.stats>div{background:var(--panel);padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stats b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pressure{height:6px;background:var(--down);position:relative;margin-top:4px}
+.pressure i{position:absolute;left:0;top:0;bottom:0;width:50%;background:var(--up);transition:width .6s}
+.live-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:12px;color:var(--dim)}
+.flash{animation:flash 1.2s ease-out}
+@keyframes flash{0%{background:rgba(233,174,52,.35)}100%{background:rgba(233,174,52,.1)}}
 .ca{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:18px 20px;border:1px solid var(--line2);background:var(--panel)}
 .ca code{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--text);word-break:break-all;flex:1 1 280px}
 footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding:28px 48px;font-size:12px;color:var(--dim)}
 footer a{text-decoration:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-@media (max-width:1100px){.cols4{grid-template-columns:repeat(2,minmax(0,1fr))}.cols3{grid-template-columns:minmax(0,1fr)}.hero-grid,.dance-grid,.sim-grid{grid-template-columns:minmax(0,1fr)}.nav{display:none}}
-@media (max-width:640px){section,.hero{padding-left:20px;padding-right:20px}header{padding:12px 20px}footer{padding:24px 20px}.cols4,.cols2{grid-template-columns:minmax(0,1fr)}.hero h1{font-size:44px}h2{font-size:36px}.mods{grid-template-columns:repeat(2,minmax(0,1fr))}.callout{padding:6px 8px}.callout small{display:none}.callout .mono{font-size:9px}.brand-sub{display:none}}
-@media (prefers-reduced-motion:reduce){.bee-img,.pulse{animation:none!important}html{scroll-behavior:auto}}
+@media (max-width:1100px){.cols4{grid-template-columns:repeat(2,minmax(0,1fr))}.cols3{grid-template-columns:minmax(0,1fr)}.hero-grid,.dance-grid,.sim-grid,.live-grid{grid-template-columns:minmax(0,1fr)}.nav{display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){section,.hero{padding-left:20px;padding-right:20px}header{padding:12px 20px}footer{padding:24px 20px}.cols4,.cols2{grid-template-columns:minmax(0,1fr)}.hero h1{font-size:44px}h2{font-size:36px}.mods{grid-template-columns:repeat(2,minmax(0,1fr))}.callout{padding:6px 8px}.callout small{display:none}.callout .mono{font-size:9px}.brand-sub{display:none}.hdr-live em{display:none}.live-mcap{font-size:46px}.gate-next{font-size:38px}.live-grid>div{padding:18px}}
+@media (max-width:420px){.hdr-live{display:none!important}}
+@media (prefers-reduced-motion:reduce){.bee-img,.pulse,.live-dot.on,.flash{animation:none!important}html{scroll-behavior:auto}.gbar i,.pressure i{transition:none}}
 </style>
 </head>
 <body>
@@ -118,7 +160,10 @@ footer a{text-decoration:none}
 <nav class="nav mono" aria-label="Sections">
 <a href="#anatomy">Brain</a><a href="#dance">Dance</a><a href="#colony">Colony</a><a href="#treasury">Treasury</a><a href="#research">Science</a><a href="#token">Token</a>
 </nav>
+<div class="hdr-right">
+<a class="hdr-live mono" href="#treasury" id="hdr-live" hidden><span class="live-dot on" aria-hidden="true"></span><span id="hdr-mcap">—</span><em id="hdr-next"></em></a>
 <a class="btn js-enter" href="#token">ENTER HIVE</a>
+</div>
 </header>
 
 <section class="hero" id="top">
@@ -205,19 +250,18 @@ footer a{text-decoration:none}
 <section id="colony" class="stack">
 <span class="mono eyebrow">03 / THE LIVE COLONY</span>
 <h2 class="disp">Watch 50 minds<br>choose a home.</h2>
-<p class="lede">This simulation follows how real honeybee swarms pick a nest site. Scouts explore and judge sites. Back home, they dance for good sites more than weak ones, and each dance is shorter than the last. Stop signals from rival scouts dampen the competition. When enough scouts gather at one site at once, the swarm commits and moves.</p>
+<p class="lede">The colony follows how real honeybee swarms pick a nest site. Scouts explore and judge sites. Back home, they dance for good sites more than weak ones, and each dance is shorter than the last. Stop signals from rival scouts dampen the competition. When enough scouts gather at one site at once, the swarm commits and moves.</p>
 <div class="band"><span>EXPLORE</span><span>ASSESS</span><span>DANCE</span><span>RECRUIT</span><span>FADE</span><span>QUORUM</span><span>MOVE</span></div>
 <div class="sim-grid">
 <div class="stack" style="gap:14px">
 <div class="controls" role="group" aria-label="What the colony is deciding"><button class="btn sm" id="mode-nest" aria-pressed="true">NEST SITES</button><button class="btn ghost sm" id="mode-treasury" aria-pressed="false">TREASURY VOTE</button></div>
-<div class="controls" role="group" aria-label="Treasury phase" id="phase-group" hidden><span class="mono" style="font-size:11px;color:var(--dim)">PHASE</span><button class="btn sm" id="phase-pre" aria-pressed="true">PRE-MIGRATION</button><button class="btn ghost sm" id="phase-post" aria-pressed="false">POST-MIGRATION</button></div>
 <div class="controls">
 <button class="btn sm" id="sim-play">Ⅱ PAUSE</button>
 <button class="btn ghost sm" id="sim-reset">NEW SWARM</button>
 <button class="btn ghost sm" id="sim-speed">SPEED 1×</button>
 <label class="toggle"><input type="checkbox" id="sim-stop" checked> Stop signals</label>
 </div>
-<canvas id="sim" width="900" height="540" aria-label="Colony simulation. Click a bee to inspect it."></canvas>
+<canvas id="sim" width="900" height="540" aria-label="The colony. Click a bee to inspect it."></canvas>
 <div class="field"><label for="quorum" class="mono">QUORUM: SCOUTS NEEDED AT ONE OPTION · <output id="q-out">10</output></label><input type="range" id="quorum" min="4" max="20" value="10"></div>
 <div id="banner" class="banner" hidden></div>
 <div class="panel stack" style="gap:12px"><span class="mono" style="font-size:11px;color:var(--gold)">SELECT A MIND</span><div class="hexes" id="hexes" role="group" aria-label="Select a mind"></div></div>
@@ -236,23 +280,63 @@ footer a{text-decoration:none}
 <p class="lede">$HIVEMIND launches on Pump.fun, so launch liquidity is handled by the platform. The treasury is funded by the creator fees the token earns from trading. What happens to those fees after launch is up to the colony: a group of independent agents, each built like the minds above, that decides how the fees are used at each market-cap gate.</p>
 
 <div class="stack" style="gap:20px">
-<h3 class="disp" style="margin:0;font-size:30px">Decision gates</h3>
+<h3 class="disp" style="margin:0;font-size:30px">Decision gates, live</h3>
 <p class="lede">The swarm starts allocating at a <b style="color:var(--text)">$15K market cap</b>. After that, every gate forces the colony to reach consensus and allocate funds. The first gates are at $15K, $30K, $60K, and $100K. After $100K, there's a new gate every $50K.</p>
+
+<div class="panel live" id="live">
+<div class="live-head mono">
+<span class="live-dot" id="live-dot" aria-hidden="true"></span>
+<span id="live-status" aria-live="polite">AWAITING LAUNCH</span>
+<span class="live-upd" id="live-upd"></span>
+</div>
+
+<div id="gate-flash" class="banner" hidden></div>
+
+<div class="live-grid">
+<div>
+<span class="mono lbl" id="mcap-lbl">MARKET CAP</span>
+<b class="disp live-mcap" id="live-mcap">—</b>
+<div class="chips" id="live-chg"></div>
+<canvas id="spark" width="640" height="150" aria-label="Market cap over time with decision gates marked"></canvas>
+</div>
+<div>
+<span class="mono lbl">NEXT GATE</span>
+<b class="disp gate-next" id="gate-next">$15K</b>
+<div class="gbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progress to next gate" id="gbar"><i id="gate-fill"></i></div>
+<p class="gate-sub" id="gate-sub"></p>
+<div class="gate-count">
+<div><b id="gate-passed">0</b><span class="mono">GATES PASSED</span></div>
+<div><b id="gate-last">—</b><span class="mono">LAST GATE</span></div>
+</div>
+</div>
+</div>
+
+<div class="stats" id="stats">
+<div><span class="mono lbl">PRICE</span><b id="st-price">—</b></div>
+<div><span class="mono lbl">24H VOLUME</span><b id="st-vol">—</b></div>
+<div><span class="mono lbl">LIQUIDITY</span><b id="st-liq">—</b></div>
+<div><span class="mono lbl">24H BUYS / SELLS</span><b id="st-tx">—</b><div class="pressure" aria-hidden="true"><i id="st-press"></i></div></div>
+</div>
+
 <div class="band" id="gate-band"></div>
-<div class="panel stack" style="gap:18px">
-<div class="field"><label for="mcap" class="mono">TRY A MARKET CAP · <output id="mcap-out">$0</output></label><input type="range" id="mcap" min="0" max="1000000" step="5000" value="45000"></div>
+
+<div class="field" id="preview">
+<label for="mcap" class="mono">PREVIEW A MARKET CAP · <output id="mcap-out">$0</output></label>
+<input type="range" id="mcap" min="0" max="1000000" step="5000" value="45000">
+</div>
+
 <p class="readout" id="gate-read" aria-live="polite"></p>
+
+<div class="live-foot mono">
+<span id="live-src">Live data starts as soon as the contract address is published.</span>
+<a id="live-chart" href="#" target="_blank" rel="noopener noreferrer" hidden>OPEN CHART ↗</a>
+</div>
 </div>
 </div>
 
 <div class="cols2">
-<article><span class="mono" style="font-size:11px;color:var(--gold)">BEFORE MIGRATION</span><h3>Shrink the supply.</h3><p>While the token is still on the Pump.fun bonding curve, the colony chooses between two options at each gate:</p><p style="color:var(--text)"><b style="color:var(--gold);font-weight:500">Buyback + burn</b>, or <b style="color:var(--gold);font-weight:500">retain for marketing</b>.</p><p>Pre-migration weighting leans heavily toward buyback and burn, to take as much supply out of circulation as possible before migration.</p></article>
-<article><span class="mono" style="font-size:11px;color:var(--gold)">AFTER MIGRATION</span><h3>Four ways forward.</h3><p>Once the token migrates, the colony weighs four options at each gate:</p><p style="color:var(--text)"><b style="color:var(--gold);font-weight:500">Buyback + burn</b>, <b style="color:var(--gold);font-weight:500">buyback + liquidity</b>, <b style="color:var(--gold);font-weight:500">preserve capital</b>, or a <b style="color:var(--gold);font-weight:500">donation to Giggle Academy</b>, a charity building free education for children.</p></article>
-</div>
-
-<div class="cols2">
-<article><span class="mono" style="font-size:11px;color:var(--gold)">THE 60/40 RULE</span><h3>Spend some, save some.</h3><p>At every gate the colony allocates 60% of the treasury according to its decision. The other 40% is retained and carried into the next gate, so the swarm never spends everything in one round.</p></article>
-<article class="stack" style="gap:14px"><div class="field"><label for="sol" class="mono">TREASURY AT A GATE (SOL)</label><input type="number" id="sol" min="0" step="0.1" value="10" style="min-height:44px;padding:0 12px;background:#0B0A08;border:1px solid var(--line2);color:var(--text);font-size:16px;font-family:inherit"></div><p class="readout" id="split-read" aria-live="polite"></p></article>
+<article><span class="mono" style="font-size:11px;color:var(--gold)">THE OPTIONS</span><h3>What the colony can choose.</h3><p>At each gate, agents campaign for one of these actions, and the colony commits to whichever reaches quorum:</p><p id="opt-list" style="color:var(--text)"></p><p>Each option is scored fresh at every gate, based on conditions at the time.</p></article>
+<article class="stack" style="gap:14px"><span class="mono" style="font-size:11px;color:var(--gold)">THE 60/40 RULE</span><h3>Spend some, save some.</h3><p>At every gate the colony allocates 60% of the treasury according to its decision. The other 40% is retained and carried into the next gate, so the swarm never spends everything in one round.</p><div class="field"><label for="sol" class="mono">TREASURY AT A GATE (SOL)</label><input type="number" id="sol" min="0" step="0.1" value="10" style="min-height:44px;padding:0 12px;background:#0B0A08;border:1px solid var(--line2);color:var(--text);font-size:16px;font-family:inherit"></div><p class="readout" id="split-read" aria-live="polite"></p></article>
 </div>
 <div class="cols4">
 <article><span class="mono" style="font-size:11px;color:var(--gold)">1 · SCOUT</span><h3>Each agent looks for itself.</h3><p>Agents independently review conditions and score the available treasury actions. No agent sees the whole picture, and none of them is in charge.</p></article>
@@ -262,7 +346,7 @@ footer a{text-decoration:none}
 </div>
 <div class="cols2">
 <article><h3>Why a swarm?</h3><p>Real swarms pick the best of several homes most of the time, without a leader. They do it by mixing independent judgment, competition, and a quorum. The same checks make it harder for one bad read or one loud voice to steer the treasury.</p></article>
-<article><h3>Try it yourself.</h3><p>Switch the live colony above to <b style="color:var(--gold);font-weight:500">TREASURY VOTE</b> and pick a phase to watch 50 agents campaign for the pre-migration or post-migration options and reach a quorum.</p><div><a class="btn ghost sm" href="#colony" id="goto-treasury">OPEN TREASURY VOTE</a></div></article>
+<article><h3>Try it yourself.</h3><p>Switch the live colony above to <b style="color:var(--gold);font-weight:500">TREASURY VOTE</b> to watch 50 agents campaign for the options and reach a quorum.</p><div><a class="btn ghost sm" href="#colony" id="goto-treasury">OPEN TREASURY VOTE</a></div></article>
 </div>
 </section>
 
@@ -276,14 +360,14 @@ footer a{text-decoration:none}
 <article><span class="mono" style="font-size:11px;color:var(--gold)">STOP SIGNALS</span><h3>Cross-inhibition</h3><p>Scouts backing one site head-butt dancers backing another, cutting their dances short. This helps a swarm break ties and avoid deadlock, similar to how rival neuron groups inhibit each other in a brain.</p></article>
 <article><span class="mono" style="font-size:11px;color:var(--gold)">LEARNING</span><h3>Mushroom bodies</h3><p>Decades of work on how bees learn to link smells with sugar rewards point to the mushroom bodies as a central hub for associative memory.</p></article>
 <article><span class="mono" style="font-size:11px;color:var(--gold)">NAVIGATION</span><h3>Central complex</h3><p>Models of the bee central complex show how a small circuit can keep a compass heading and sum up an outbound path, which is enough to steer straight home.</p></article>
-<article><span class="mono" style="font-size:11px;color:var(--gold)">WHAT THIS ISN'T</span><h3>An honest scope</h3><p>The agents borrow how bee brains and swarms work. They aren't neuron-by-neuron brain simulations. The colony on this page is a demo that runs in your browser and doesn't touch real funds.</p></article>
+<article><span class="mono" style="font-size:11px;color:var(--gold)">WHAT THIS ISN'T</span><h3>An honest scope</h3><p>The agents borrow how bee brains and swarms work. They aren't neuron-by-neuron brain simulations.</p></article>
 </div>
 </section>
 
 <section id="token" class="stack">
 <span class="mono eyebrow">06 / THE TOKEN</span>
 <h2 class="disp">$HIVEMIND on Solana.</h2>
-<p class="lede">$HIVEMIND launches on Solana through Pump.fun. Starting at a $15K market cap, the colony decides how creator fees are used at each gate: buyback and burn or marketing before migration; buyback and burn, buyback and liquidity, preserving capital, or a Giggle Academy donation after. The contract address below is the only official one.</p>
+<p class="lede">$HIVEMIND launches on Solana through Pump.fun. Starting at a $15K market cap, the colony decides how creator fees are used at each gate, choosing among the treasury options above. The contract address below is the only official one.</p>
 <div class="ca"><span class="mono" style="font-size:11px;color:var(--gold)">CA</span><code id="ca-text">Not published yet</code><button class="btn ghost sm" id="ca-copy" disabled>COPY</button></div>
 <p style="margin:0;font-size:14px;line-height:1.7;color:var(--dim);max-width:760px">$HIVEMIND is a community token with no promise of value or returns. Colony decisions such as buybacks and burns are not guarantees of price or performance. Crypto is volatile and you can lose everything you put in. Always check the contract address before buying.</p>
 <div><a class="btn js-enter" href="#token">ENTER HIVE</a></div>
@@ -301,17 +385,45 @@ footer a{text-decoration:none}
 
 <script>
 /* ============================================================
-   PASTE YOUR CONTRACT ADDRESS BETWEEN THE QUOTES BELOW.
-   Every ENTER HIVE button will then open your Pump.fun page.
+   CONFIG
+   1. Paste your contract address between the quotes. Until it's a
+      real Solana address, the page stays in "awaiting launch" mode.
+   2. POLL_SECONDS: how often live data refreshes.
+   3. TREASURY_OPTIONS: what the colony votes on (2 to 5 options).
    ============================================================ */
 const CONTRACT_ADDRESS = "TO BE ANNOUNCED";
+const POLL_SECONDS = 20;
+const TREASURY_OPTIONS = ["Buyback + burn", "Buyback + liquidity", "Preserve capital", "Retain for marketing"];
 
 (function(){
 "use strict";
 var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* ---------- shared helpers ---------- */
+var RAW_CA = (CONTRACT_ADDRESS || "").trim();
+var CA = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(RAW_CA) ? RAW_CA : "";
+var OPTIONS = TREASURY_OPTIONS.slice(0, 5);
+function gateLbl(v){ return v >= 1e6 ? "$" + (v/1e6).toFixed(v % 1e6 ? 2 : 0) + "M" : "$" + Math.round(v/1000) + "K"; }
+function money(v){
+  if (v == null || !isFinite(v)) return "—";
+  if (v >= 1e9) return "$" + (v/1e9).toFixed(2) + "B";
+  if (v >= 1e6) return "$" + (v/1e6).toFixed(2) + "M";
+  if (v >= 1e3) return "$" + (v/1e3).toFixed(v >= 1e5 ? 0 : 1) + "K";
+  return "$" + Math.round(v);
+}
+function priceFmt(v){
+  if (v == null || !isFinite(v) || v <= 0) return "—";
+  if (v >= 1) return "$" + v.toFixed(4);
+  var s = v.toPrecision(3);
+  if (s.indexOf("e") > -1){ var z = Math.floor(-Math.log10(v)); return "$0.0(" + (z - 1) + ")" + Math.round(v * Math.pow(10, z + 2)); }
+  return "$" + s;
+}
+var GATES_FIXED = [15000, 30000, 60000, 100000];
+function gateList(upTo){ var g = GATES_FIXED.slice(); while (g[g.length-1] < upTo) g.push(g[g.length-1] + 50000); return g; }
+function gatesPassed(m){ return gateList(m).filter(function(x){ return x <= m; }); }
+function nextGate(m){ var g = gateList(m + 1); for (var i = 0; i < g.length; i++) if (g[i] > m) return g[i]; return g[g.length-1]; }
+
 /* ---------- token / enter hive ---------- */
-var CA = (CONTRACT_ADDRESS || "").trim();
 var caText = document.getElementById('ca-text'), caCopy = document.getElementById('ca-copy');
 if (CA) {
   var url = "https://pump.fun/coin/" + encodeURIComponent(CA);
@@ -326,29 +438,174 @@ if (CA) {
 }
 function fallbackCopy(){ var t=document.createElement('textarea'); t.value=CA; document.body.appendChild(t); t.select(); try{document.execCommand('copy');}catch(e){} t.remove(); }
 
-/* ---------- decision gates ---------- */
+/* ---------- treasury options + 60/40 ---------- */
+document.getElementById('opt-list').innerHTML = OPTIONS.map(function(o){ return '<b style="color:var(--gold);font-weight:500">' + o + '</b>'; }).join(", ");
 (function(){
-  function gatesUpTo(max){ var g = [15000, 30000, 60000, 100000]; while (g[g.length-1] + 50000 <= max) g.push(g[g.length-1] + 50000); return g.filter(function(x){ return x <= max; }); }
-  function nextGate(m){ var g = [15000, 30000, 60000, 100000]; for (var i = 0; i < g.length; i++) if (g[i] > m) return g[i]; return 100000 + (Math.floor((m - 100000)/50000) + 1)*50000; }
-  function fmt(v){ return v >= 1000000 ? "$" + (v/1000000).toFixed(v % 1000000 ? 2 : 0) + "M" : "$" + Math.round(v/1000) + "K"; }
-  var band = document.getElementById('gate-band'), show = [15000,30000,60000,100000,150000,200000,250000,300000];
-  band.innerHTML = show.map(function(g){ return '<span data-g="' + g + '">' + fmt(g) + '</span>'; }).join("") + '<span>+$50K EACH</span>';
-  var mc = document.getElementById('mcap'), out = document.getElementById('mcap-out'), read = document.getElementById('gate-read');
-  function upd(){
-    var m = +mc.value, done = gatesUpTo(m);
-    out.textContent = m ? "$" + m.toLocaleString() : "$0";
-    band.querySelectorAll('[data-g]').forEach(function(sp){ var on = +sp.dataset.g <= m; sp.style.background = on ? "var(--gold)" : ""; sp.style.color = on ? "#120E05" : ""; });
-    read.innerHTML = done.length
-      ? "At " + out.textContent + ", the swarm has passed <b>" + done.length + " gate" + (done.length > 1 ? "s" : "") + "</b> and made " + done.length + " allocation decision" + (done.length > 1 ? "s" : "") + ". The next gate is at <b>" + fmt(nextGate(m)) + "</b>."
-      : "Below $15K, the swarm doesn't allocate anything yet. The first gate is at <b>$15K</b>.";
-  }
-  mc.addEventListener('input', upd); upd();
   var sol = document.getElementById('sol'), split = document.getElementById('split-read');
-  function upd2(){
+  function upd(){
     var v = Math.max(0, parseFloat(sol.value) || 0), r = function(x){ return (Math.round(x*100)/100).toLocaleString(); };
     split.innerHTML = "With <b>" + r(v) + " SOL</b> in the treasury at a gate, <b>" + r(v*0.6) + " SOL</b> is allocated by the swarm's decision and <b>" + r(v*0.4) + " SOL</b> is carried into the next gate.";
   }
-  sol.addEventListener('input', upd2); upd2();
+  sol.addEventListener('input', upd); upd();
+})();
+
+/* ---------- live market data ---------- */
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var dot = $('live-dot'), status = $('live-status'), updEl = $('live-upd'), mcapEl = $('live-mcap'), mcapLbl = $('mcap-lbl');
+  var chg = $('live-chg'), spark = $('spark'), sctx = spark.getContext('2d');
+  var gNext = $('gate-next'), gFill = $('gate-fill'), gBar = $('gbar'), gSub = $('gate-sub'), gPassed = $('gate-passed'), gLast = $('gate-last');
+  var band = $('gate-band'), read = $('gate-read'), flash = $('gate-flash');
+  var stPrice = $('st-price'), stVol = $('st-vol'), stLiq = $('st-liq'), stTx = $('st-tx'), stPress = $('st-press');
+  var preview = $('preview'), slider = $('mcap'), sliderOut = $('mcap-out');
+  var hdr = $('hdr-live'), hdrM = $('hdr-mcap'), hdrN = $('hdr-next'), chartLink = $('live-chart'), src = $('live-src');
+  var KEY = "hm_mcap_hist_" + CA, hist = [], lastOk = 0, lastGateCount = null, shownM = null, timer = null;
+
+  function setStatus(kind, text){ dot.className = "live-dot" + (kind === "on" ? " on" : kind === "err" ? " err" : ""); status.textContent = text; }
+
+  function renderGates(m){
+    var done = gatesPassed(m), nx = nextGate(m), pv = done.length ? done[done.length-1] : 0;
+    var pct = Math.max(0, Math.min(1, (m - pv) / (nx - pv)));
+    gNext.textContent = gateLbl(nx);
+    gFill.style.width = (pct*100).toFixed(1) + "%";
+    gBar.setAttribute('aria-valuenow', Math.round(pct*100));
+    gSub.innerHTML = "<b>" + money(nx - m) + "</b> to go, " + Math.round(pct*100) + "% of the way from " + (pv ? gateLbl(pv) : "$0") + ".";
+    gPassed.textContent = done.length;
+    gLast.textContent = pv ? gateLbl(pv) : "—";
+    var list = gateList(nx + 200000), idx = list.indexOf(nx), start = Math.max(0, idx - 3), show = list.slice(start, start + 8);
+    band.innerHTML = show.map(function(g){ return '<span class="' + (g <= m ? "on" : g === nx ? "next" : "") + '">' + gateLbl(g) + '</span>'; }).join("") + '<span>+$50K EACH</span>';
+    read.innerHTML = done.length
+      ? "The swarm has passed <b>" + done.length + " gate" + (done.length > 1 ? "s" : "") + "</b> and made " + done.length + " allocation decision" + (done.length > 1 ? "s" : "") + ". The next vote happens at <b>" + gateLbl(nx) + "</b>."
+      : "Below $15K, the swarm doesn't allocate anything yet. The first vote happens at <b>$15K</b>.";
+    return { done: done.length, next: nx, last: pv };
+  }
+
+  function tweenMcap(to){
+    var from = shownM == null ? to : shownM; shownM = to;
+    if (reduce || from === to){ mcapEl.textContent = money(to); return; }
+    var t0 = performance.now();
+    (function tick(now){ var p = Math.min(1, (now - t0) / 700), e = 1 - Math.pow(1 - p, 3); mcapEl.textContent = money(from + (to - from)*e); if (p < 1) requestAnimationFrame(tick); })(t0);
+  }
+
+  function drawSpark(msg){
+    var W = spark.width, H = spark.height, P = 8;
+    sctx.clearRect(0, 0, W, H);
+    sctx.font = "12px 'IBM Plex Mono', monospace";
+    if (msg || hist.length < 2){
+      sctx.fillStyle = "#8C8472"; sctx.textAlign = "center";
+      sctx.fillText(msg || "Chart builds as new data comes in", W/2, H/2 + 4); return;
+    }
+    var t0 = hist[0].t, t1 = hist[hist.length-1].t, lo = Infinity, hi = -Infinity;
+    hist.forEach(function(p){ lo = Math.min(lo, p.m); hi = Math.max(hi, p.m); });
+    var nx = nextGate(hi); if (nx - hi < (hi - lo) * 0.6 + hi * 0.05) hi = Math.max(hi, nx);
+    var pad = (hi - lo) * 0.12 || hi * 0.05 || 1; lo = Math.max(0, lo - pad); hi += pad;
+    var X = function(t){ return P + (W - 2*P) * (t1 === t0 ? 1 : (t - t0) / (t1 - t0)); };
+    var Y = function(v){ return H - P - (H - 2*P) * (v - lo) / (hi - lo); };
+    sctx.textAlign = "right";
+    gateList(hi).forEach(function(g){
+      if (g < lo || g > hi) return;
+      var y = Y(g); sctx.strokeStyle = "rgba(233,174,52,.35)"; sctx.setLineDash([3,5]); sctx.lineWidth = 1;
+      sctx.beginPath(); sctx.moveTo(P, y); sctx.lineTo(W - P, y); sctx.stroke(); sctx.setLineDash([]);
+      sctx.fillStyle = "#E9AE34"; sctx.fillText(gateLbl(g), W - P, y - 4);
+    });
+    sctx.beginPath(); hist.forEach(function(p, i){ sctx[i ? "lineTo" : "moveTo"](X(p.t), Y(p.m)); });
+    sctx.strokeStyle = "#EDE6D6"; sctx.lineWidth = 2; sctx.stroke();
+    sctx.lineTo(X(t1), H - P); sctx.lineTo(X(t0), H - P); sctx.closePath(); sctx.fillStyle = "rgba(233,174,52,.10)"; sctx.fill();
+    var last = hist[hist.length-1]; sctx.fillStyle = "#E9AE34"; sctx.beginPath(); sctx.arc(X(last.t), Y(last.m), 4, 0, Math.PI*2); sctx.fill();
+    sctx.textAlign = "left"; sctx.fillStyle = "#8C8472";
+    var mins = Math.round((t1 - t0) / 60000);
+    sctx.fillText(mins >= 60 ? "LAST " + Math.round(mins/60) + "H" : "LAST " + Math.max(1, mins) + " MIN", P, 14);
+  }
+
+  function renderChanges(pc){
+    pc = pc || {};
+    chg.innerHTML = [["5M","m5"],["1H","h1"],["6H","h6"],["24H","h24"]].map(function(k){
+      var v = pc[k[1]]; if (v == null || !isFinite(v)) return "";
+      return '<span class="chip ' + (v > 0 ? "up" : v < 0 ? "dn" : "") + '">' + k[0] + " " + (v > 0 ? "+" : "") + v.toFixed(1) + "%</span>";
+    }).join("");
+  }
+
+  function onGate(g){
+    flash.hidden = false; flash.classList.remove('flash'); void flash.offsetWidth; flash.classList.add('flash');
+    flash.innerHTML = "<b>Gate " + gateLbl(g) + " reached</b> at " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + ". The colony votes on how to allocate the treasury for this gate.";
+    document.dispatchEvent(new CustomEvent("hm:gate", { detail: { gate: g, label: gateLbl(g) } }));
+  }
+
+  function update(p){
+    var m = +(p.marketCap || p.fdv || 0);
+    lastOk = Date.now();
+    setStatus("on", "LIVE");
+    tweenMcap(m);
+    renderChanges(p.priceChange);
+    stPrice.textContent = priceFmt(+p.priceUsd);
+    stVol.textContent = money(p.volume && p.volume.h24);
+    stLiq.textContent = money(p.liquidity && p.liquidity.usd);
+    var tx = p.txns && p.txns.h24;
+    if (tx){ var b = tx.buys || 0, s = tx.sells || 0; stTx.textContent = b.toLocaleString() + " / " + s.toLocaleString(); stPress.style.width = (b + s ? b/(b + s)*100 : 50) + "%"; }
+    var now = Date.now(), cut = now - 864e5;
+    if (!hist.length || now - hist[hist.length-1].t > 5000) hist.push({ t: now, m: m });
+    hist = hist.filter(function(x){ return x.t > cut; }).slice(-600);
+    try { localStorage.setItem(KEY, JSON.stringify(hist)); } catch(e){}
+    drawSpark();
+    var g = renderGates(m);
+    if (lastGateCount !== null && g.done > lastGateCount) onGate(g.last);
+    lastGateCount = g.done;
+    hdr.hidden = false; hdrM.textContent = money(m); hdrN.textContent = "NEXT " + gateLbl(g.next);
+    if (p.url){ chartLink.href = p.url; chartLink.hidden = false; }
+    document.dispatchEvent(new CustomEvent("hm:live", { detail: { mcap: m, next: g.next, nextLabel: gateLbl(g.next) } }));
+  }
+
+  function getJSON(u){ return fetch(u, { cache: "no-store" }).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }); }
+  function fetchPairs(){
+    return getJSON("https://api.dexscreener.com/tokens/v1/solana/" + CA)
+      .then(function(d){ return Array.isArray(d) ? d : (d && d.pairs) || []; })
+      .catch(function(){ return getJSON("https://api.dexscreener.com/latest/dex/tokens/" + CA).then(function(d){ return (d && d.pairs) || []; }); });
+  }
+  function pickPair(pairs){
+    var mine = pairs.filter(function(p){ return p && p.baseToken && p.baseToken.address === CA; });
+    if (!mine.length) mine = pairs;
+    mine.sort(function(a, b){
+      var la = (a.liquidity && a.liquidity.usd) || 0, lb = (b.liquidity && b.liquidity.usd) || 0;
+      if (lb !== la) return lb - la;
+      return ((b.volume && b.volume.h24) || 0) - ((a.volume && a.volume.h24) || 0);
+    });
+    return mine[0] || null;
+  }
+  function schedule(){ clearTimeout(timer); timer = setTimeout(poll, POLL_SECONDS * 1000); }
+  function poll(){
+    if (document.hidden){ schedule(); return; }
+    fetchPairs().then(function(pairs){
+      var p = pickPair(pairs);
+      if (!p){ setStatus("idle", "WAITING FOR FIRST TRADES"); if (!lastOk) drawSpark("Waiting for the token to be indexed"); }
+      else update(p);
+      schedule();
+    }, function(){
+      setStatus("err", lastOk ? "RECONNECTING · SHOWING LAST DATA" : "CAN'T REACH MARKET DATA · RETRYING");
+      schedule();
+    });
+  }
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && CA) poll(); });
+  setInterval(function(){
+    if (!lastOk){ updEl.textContent = ""; return; }
+    var s = Math.round((Date.now() - lastOk) / 1000);
+    updEl.textContent = "UPDATED " + (s < 60 ? s + "S" : Math.round(s/60) + "M") + " AGO";
+  }, 1000);
+
+  if (CA){
+    preview.hidden = true;
+    src.textContent = "Market data from DexScreener, refreshed every " + POLL_SECONDS + " seconds. The chart shows data collected while this page has been open on your device.";
+    setStatus("idle", "CONNECTING");
+    try { var h = JSON.parse(localStorage.getItem(KEY) || "[]"); if (Array.isArray(h)) hist = h.filter(function(x){ return x && x.t > Date.now() - 864e5; }); } catch(e){ hist = []; }
+    drawSpark(hist.length < 2 ? "Connecting to market data" : null);
+    renderGates(0);
+    poll();
+  } else {
+    setStatus("idle", "AWAITING LAUNCH · PREVIEW");
+    mcapLbl.textContent = "PREVIEW MARKET CAP";
+    drawSpark("Live chart starts at launch");
+    var upd = function(){ var m = +slider.value; sliderOut.textContent = "$" + m.toLocaleString(); mcapEl.textContent = money(m); renderGates(m); };
+    slider.addEventListener('input', upd); upd();
+  }
 })();
 
 /* ---------- brain regions ---------- */
@@ -442,28 +699,27 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
   requestAnimationFrame(frame);
 })();
 
-/* ---------- colony simulation (nest-site selection) ---------- */
+/* ---------- colony simulation ---------- */
 (function(){
   var cv = document.getElementById('sim'), ctx = cv.getContext('2d');
   var W = cv.width, H = cv.height, HX = W/2, HY = H/2, N = 50, M_PER_PX = 10;
   var COLORS = ["#E9AE34", "#6FA8DC", "#E07B39", "#9FD6A0", "#C9A3E6"];
   var UNC = "#6E6758";
-  var mode = "nest", phase = "pre";
-  var PRE = ["Buyback + burn", "Retain for marketing"], POST = ["Buyback + burn", "Buyback + liquidity", "Preserve capital", "Giggle Academy"];
+  var mode = "nest";
   var agents, sites, t, running = true, speed = 1, decided, selected = 26, lastStopLog, visible = false;
   var logEl = document.getElementById('log'), bannerEl = document.getElementById('banner');
   var qEl = document.getElementById('quorum'), qOut = document.getElementById('q-out'), stopEl = document.getElementById('sim-stop');
   var playBtn = document.getElementById('sim-play'), speedBtn = document.getElementById('sim-speed');
   var hexWrap = document.getElementById('hexes'), sitesEl = document.getElementById('sites'), insp = document.getElementById('insp'), inspTitle = document.getElementById('insp-title');
   function rnd(a, b){ return a + Math.random()*(b - a); }
+  function shuffle(a){ return a.sort(function(){ return Math.random() - .5; }); }
   function name(i){ return "MIND_" + String(i + 1).padStart(3, "0"); }
   function log(html){ var li = document.createElement('li'); li.innerHTML = "<b>t" + t + "</b> " + html; logEl.prepend(li); while (logEl.children.length > 9) logEl.lastChild.remove(); }
   function reset(){
     t = 0; decided = null; lastStopLog = -999; logEl.innerHTML = ""; bannerEl.hidden = true;
     sites = []; var base = rnd(0, Math.PI*2), names, qs;
-    if (mode === "nest"){ names = ["Site A","Site B","Site C","Site D","Site E"]; qs = [rnd(.82,.95), rnd(.55,.75), rnd(.45,.7), rnd(.25,.5), rnd(.2,.45)].sort(function(){ return Math.random() - .5; }); }
-    else if (phase === "pre"){ names = PRE; qs = [rnd(.72,.95), rnd(.3,.62)]; }  /* pre-migration weighting favors buyback + burn */
-    else { names = POST; qs = [rnd(.82,.95), rnd(.55,.75), rnd(.4,.65), rnd(.3,.6)].sort(function(){ return Math.random() - .5; }); }
+    if (mode === "nest"){ names = ["Site A","Site B","Site C","Site D","Site E"]; qs = shuffle([rnd(.82,.95), rnd(.55,.75), rnd(.45,.7), rnd(.25,.5), rnd(.2,.45)]); }
+    else { names = OPTIONS; qs = shuffle([rnd(.82,.95), rnd(.55,.75), rnd(.45,.7), rnd(.3,.6), rnd(.25,.5)].slice(0, names.length)); }
     var n = names.length;
     for (var i = 0; i < n; i++){
       var a = base + i*(Math.PI*2/n) + rnd(-.3,.3), r = n === 2 ? rnd(190, 230) : rnd(150, 230);
@@ -475,9 +731,9 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
       agents.push({ i: j, x: HX + Math.cos(aa)*rr, y: HY + Math.sin(aa)*rr, st: "rest", site: null, enth: 0, trips: 0, timer: 0, hd: rnd(-Math.PI, Math.PI), mem: null, sensed: 0 });
     }
     for (var k = 0; k < 8; k++){ startExplore(agents[Math.floor(Math.random()*N)]); }
-    log(mode === "nest" ? "A new swarm has clustered. Scouts head out to search." : (phase === "pre" ? "Gate reached, pre-migration. Agents start scoring options." : "Gate reached, post-migration. Agents start scoring options."));
+    log(mode === "nest" ? "A new swarm has clustered. Scouts head out to search." : "Gate reached. Agents start scoring options.");
     document.getElementById("sites-title").textContent = mode === "nest" ? "CANDIDATE SITES" : "TREASURY OPTIONS";
-    document.getElementById("sites-note").textContent = mode === "nest" ? "Quality is shown here for you. The bees never see it directly. Each one judges a site for herself when she visits." : (phase === "pre" ? "Demo only: scores are random, weighted toward buyback + burn as they are before migration. No funds move." : "Demo only: option scores here are random and no funds move. In the live colony, agents score each option from conditions at the time.");
+    document.getElementById("sites-note").textContent = mode === "nest" ? "Quality is shown here for you. The bees never see it directly. Each one judges a site for herself when she visits." : "Each agent scores the options for itself. The colony commits when one option reaches quorum.";
     buildHexes(); renderPanels();
   }
   /* dance circuits rise steeply with judged quality; weak sites get little or no dancing */
@@ -497,7 +753,7 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
       }
     }
     for (var i = 0; i < agents.length; i++){
-      var a = agents[i];
+      var a = agents[i], judged;
       switch (a.st){
         case "rest":
           jiggle(a, HX, HY, 26); a.sensed = dancers.length;
@@ -514,7 +770,7 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
           for (var s = 0; s < sites.length; s++){
             var st = sites[s];
             if (Math.hypot(a.x - st.x, a.y - st.y) < 26){
-              a.site = st; a.st = "assess"; a.timer = 60; var judged = Math.round(st.q*100*rnd(.9,1.1)); a.mem = { site: st.name, q: judged }; a.enth = drive(judged);
+              a.site = st; a.st = "assess"; a.timer = 60; judged = Math.round(st.q*100*rnd(.9,1.1)); a.mem = { site: st.name, q: judged }; a.enth = drive(judged);
               if (!st.found){ st.found = true; log(name(a.i) + " discovered <b>" + st.name + "</b>."); }
               break;
             }
@@ -524,7 +780,7 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
         case "fly":
           if (moveTo(a, a.site.x + rnd(-8,8), a.site.y + rnd(-8,8), 2.6)){
             a.st = "assess"; a.timer = 60;
-            if (!a.enth){ var judged = Math.round(a.site.q*100*rnd(.9,1.1)); a.mem = { site: a.site.name, q: judged }; a.enth = drive(judged); }
+            if (!a.enth){ judged = Math.round(a.site.q*100*rnd(.9,1.1)); a.mem = { site: a.site.name, q: judged }; a.enth = drive(judged); }
           }
           break;
         case "assess":
@@ -574,6 +830,10 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
     var sid = a.site ? a.site.name : "";
     return { rest: "Resting in the hive", explore: "Exploring for sites", fly: "Flying to " + sid, assess: "Inspecting " + sid, home: "Flying home", dance: "Dancing for " + sid, swarm: "Moving with the swarm to " + sid }[a.st];
   }
+  function centerLabel(){
+    if (mode === "nest") return "HIVE";
+    return "COLONY";
+  }
   function draw(){
     ctx.fillStyle = "#0B0A08"; ctx.fillRect(0, 0, W, H);
     comb(ctx, W, H, 30, "rgba(233,174,52,.05)");
@@ -587,7 +847,7 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
     });
     ctx.strokeStyle = "#E9AE34"; ctx.lineWidth = 2; hexPath(ctx, HX, HY, 40); ctx.stroke();
     ctx.fillStyle = "rgba(233,174,52,.06)"; ctx.fill();
-    ctx.fillStyle = "#B8AF9C"; ctx.fillText(mode === "nest" ? "HIVE" : "COLONY", HX, HY + 58);
+    ctx.fillStyle = "#B8AF9C"; ctx.fillText(centerLabel(), HX, HY + 58);
     agents.forEach(function(a){
       var col = a.site ? a.site.col : UNC;
       if (a.st === "dance"){
@@ -613,7 +873,7 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
   function renderPanels(){
     var Q = +qEl.value;
     sitesEl.innerHTML = sites.map(function(s){
-      return '<div class="site-row"><span class="sw" style="background:' + s.col + '">' + s.id + '</span><div><div style="display:flex;justify-content:space-between"><span>' + s.name + ' · ' + Math.round(s.q*100) + '</span><span style="color:var(--dim)">' + s.sup + ' committed</span></div><div class="bar"><i style="width:' + Math.round(s.q*100) + '%;background:' + s.col + '"></i></div></div><span class="mono" style="font-size:11px;color:var(--muted)">' + s.at + '/' + Q + '</span></div>';
+      return '<div class="site-row"><span class="sw" style="background:' + s.col + '">' + s.id + '</span><div><div style="display:flex;justify-content:space-between;gap:8px"><span>' + s.name + ' · ' + Math.round(s.q*100) + '</span><span style="color:var(--dim)">' + s.sup + ' committed</span></div><div class="bar"><i style="width:' + Math.round(s.q*100) + '%;background:' + s.col + '"></i></div></div><span class="mono" style="font-size:11px;color:var(--muted)">' + s.at + '/' + Q + '</span></div>';
     }).join("");
     [].forEach.call(hexWrap.children, function(b, j){ var a = agents[j]; b.style.background = a.site ? a.site.col : "#3A352A"; b.classList.toggle('sel', j === selected); b.setAttribute('aria-pressed', j === selected); });
     var a = agents[selected], dist = Math.round(Math.hypot(a.x - HX, a.y - HY) * M_PER_PX), deg = Math.round(((a.hd*180/Math.PI) + 90 + 360) % 360);
@@ -637,22 +897,16 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
   function setMode(m){
     mode = m;
     [["mode-nest","nest"],["mode-treasury","treasury"]].forEach(function(p){ var b = document.getElementById(p[0]), on = p[1] === m; b.classList.toggle("ghost", !on); b.setAttribute("aria-pressed", on); });
-    document.getElementById("phase-group").hidden = m !== "treasury";
     reset(); draw();
   }
-  function setPhase(p){
-    phase = p;
-    [["phase-pre","pre"],["phase-post","post"]].forEach(function(q){ var b = document.getElementById(q[0]), on = q[1] === p; b.classList.toggle("ghost", !on); b.setAttribute("aria-pressed", on); });
-    reset(); draw();
-  }
-  document.getElementById("phase-pre").addEventListener("click", function(){ setPhase("pre"); });
-  document.getElementById("phase-post").addEventListener("click", function(){ setPhase("post"); });
   document.getElementById("mode-nest").addEventListener("click", function(){ setMode("nest"); });
   document.getElementById("mode-treasury").addEventListener("click", function(){ setMode("treasury"); });
   document.getElementById("goto-treasury").addEventListener("click", function(){ setMode("treasury"); });
   document.getElementById('sim-reset').addEventListener('click', function(){ reset(); draw(); });
   speedBtn.addEventListener('click', function(){ speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; speedBtn.textContent = "SPEED " + speed + "×"; });
   qEl.addEventListener('input', function(){ qOut.textContent = qEl.value; renderPanels(); if (!running) draw(); });
+
+
   var frameN = 0;
   function loop(){
     requestAnimationFrame(loop);
