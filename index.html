@@ -210,6 +210,7 @@ footer a{text-decoration:none}
 <div class="sim-grid">
 <div class="stack" style="gap:14px">
 <div class="controls" role="group" aria-label="What the colony is deciding"><button class="btn sm" id="mode-nest" aria-pressed="true">NEST SITES</button><button class="btn ghost sm" id="mode-treasury" aria-pressed="false">TREASURY VOTE</button></div>
+<div class="controls" role="group" aria-label="Treasury phase" id="phase-group" hidden><span class="mono" style="font-size:11px;color:var(--dim)">PHASE</span><button class="btn sm" id="phase-pre" aria-pressed="true">PRE-MIGRATION</button><button class="btn ghost sm" id="phase-post" aria-pressed="false">POST-MIGRATION</button></div>
 <div class="controls">
 <button class="btn sm" id="sim-play">Ⅱ PAUSE</button>
 <button class="btn ghost sm" id="sim-reset">NEW SWARM</button>
@@ -232,8 +233,27 @@ footer a{text-decoration:none}
 <section id="treasury" class="stack">
 <span class="mono eyebrow">04 / THE COLONY RUNS THE TREASURY</span>
 <h2 class="disp">No single wallet decides.<br>The swarm does.</h2>
-<p class="lede">$HIVEMIND launches on Pump.fun, so launch liquidity is handled by the platform. The treasury is funded by the creator fees the token earns from trading. What happens to those fees after launch is up to the colony: a group of independent agents, each built like the minds above, that decides whether to buy back, burn, hold, or add liquidity.</p>
-<div class="band"><span>BUY BACK</span><span>BURN</span><span>BUY BACK + BURN</span><span>HOLD RESERVE</span><span>ADD LIQUIDITY</span></div>
+<p class="lede">$HIVEMIND launches on Pump.fun, so launch liquidity is handled by the platform. The treasury is funded by the creator fees the token earns from trading. What happens to those fees after launch is up to the colony: a group of independent agents, each built like the minds above, that decides how the fees are used at each market-cap gate.</p>
+
+<div class="stack" style="gap:20px">
+<h3 class="disp" style="margin:0;font-size:30px">Decision gates</h3>
+<p class="lede">The swarm starts allocating at a <b style="color:var(--text)">$15K market cap</b>. After that, every gate forces the colony to reach consensus and allocate funds. The first gates are at $15K, $30K, $60K, and $100K. After $100K, there's a new gate every $50K.</p>
+<div class="band" id="gate-band"></div>
+<div class="panel stack" style="gap:18px">
+<div class="field"><label for="mcap" class="mono">TRY A MARKET CAP · <output id="mcap-out">$0</output></label><input type="range" id="mcap" min="0" max="1000000" step="5000" value="45000"></div>
+<p class="readout" id="gate-read" aria-live="polite"></p>
+</div>
+</div>
+
+<div class="cols2">
+<article><span class="mono" style="font-size:11px;color:var(--gold)">BEFORE MIGRATION</span><h3>Shrink the supply.</h3><p>While the token is still on the Pump.fun bonding curve, the colony chooses between two options at each gate:</p><p style="color:var(--text)"><b style="color:var(--gold);font-weight:500">Buyback + burn</b>, or <b style="color:var(--gold);font-weight:500">retain for marketing</b>.</p><p>Pre-migration weighting leans heavily toward buyback and burn, to take as much supply out of circulation as possible before migration.</p></article>
+<article><span class="mono" style="font-size:11px;color:var(--gold)">AFTER MIGRATION</span><h3>Four ways forward.</h3><p>Once the token migrates, the colony weighs four options at each gate:</p><p style="color:var(--text)"><b style="color:var(--gold);font-weight:500">Buyback + burn</b>, <b style="color:var(--gold);font-weight:500">buyback + liquidity</b>, <b style="color:var(--gold);font-weight:500">preserve capital</b>, or a <b style="color:var(--gold);font-weight:500">donation to Giggle Academy</b>, a charity building free education for children.</p></article>
+</div>
+
+<div class="cols2">
+<article><span class="mono" style="font-size:11px;color:var(--gold)">THE 60/40 RULE</span><h3>Spend some, save some.</h3><p>At every gate the colony allocates 60% of the treasury according to its decision. The other 40% is retained and carried into the next gate, so the swarm never spends everything in one round.</p></article>
+<article class="stack" style="gap:14px"><div class="field"><label for="sol" class="mono">TREASURY AT A GATE (SOL)</label><input type="number" id="sol" min="0" step="0.1" value="10" style="min-height:44px;padding:0 12px;background:#0B0A08;border:1px solid var(--line2);color:var(--text);font-size:16px;font-family:inherit"></div><p class="readout" id="split-read" aria-live="polite"></p></article>
+</div>
 <div class="cols4">
 <article><span class="mono" style="font-size:11px;color:var(--gold)">1 · SCOUT</span><h3>Each agent looks for itself.</h3><p>Agents independently review conditions and score the available treasury actions. No agent sees the whole picture, and none of them is in charge.</p></article>
 <article><span class="mono" style="font-size:11px;color:var(--gold)">2 · DANCE</span><h3>Strong cases get louder.</h3><p>Agents advertise the actions they rate highly to the rest of the colony. The better an agent rates an option, the harder it pushes for it.</p></article>
@@ -242,7 +262,7 @@ footer a{text-decoration:none}
 </div>
 <div class="cols2">
 <article><h3>Why a swarm?</h3><p>Real swarms pick the best of several homes most of the time, without a leader. They do it by mixing independent judgment, competition, and a quorum. The same checks make it harder for one bad read or one loud voice to steer the treasury.</p></article>
-<article><h3>Try it yourself.</h3><p>Switch the live colony above to <b style="color:var(--gold);font-weight:500">TREASURY VOTE</b> to watch 50 agents campaign for buybacks, burns, holding, or liquidity, and reach a quorum.</p><div><a class="btn ghost sm" href="#colony" id="goto-treasury">OPEN TREASURY VOTE</a></div></article>
+<article><h3>Try it yourself.</h3><p>Switch the live colony above to <b style="color:var(--gold);font-weight:500">TREASURY VOTE</b> and pick a phase to watch 50 agents campaign for the pre-migration or post-migration options and reach a quorum.</p><div><a class="btn ghost sm" href="#colony" id="goto-treasury">OPEN TREASURY VOTE</a></div></article>
 </div>
 </section>
 
@@ -263,7 +283,7 @@ footer a{text-decoration:none}
 <section id="token" class="stack">
 <span class="mono eyebrow">06 / THE TOKEN</span>
 <h2 class="disp">$HIVEMIND on Solana.</h2>
-<p class="lede">$HIVEMIND launches on Solana through Pump.fun. After launch, the colony decides how creator fees are used: buybacks, burns, reserves, or added liquidity. The  address below is the only official one.</p>
+<p class="lede">$HIVEMIND launches on Solana through Pump.fun. Starting at a $15K market cap, the colony decides how creator fees are used at each gate: buyback and burn or marketing before migration; buyback and burn, buyback and liquidity, preserving capital, or a Giggle Academy donation after. The contract address below is the only official one.</p>
 <div class="ca"><span class="mono" style="font-size:11px;color:var(--gold)">CA</span><code id="ca-text">Not published yet</code><button class="btn ghost sm" id="ca-copy" disabled>COPY</button></div>
 <p style="margin:0;font-size:14px;line-height:1.7;color:var(--dim);max-width:760px">$HIVEMIND is a community token with no promise of value or returns. Colony decisions such as buybacks and burns are not guarantees of price or performance. Crypto is volatile and you can lose everything you put in. Always check the contract address before buying.</p>
 <div><a class="btn js-enter" href="#token">ENTER HIVE</a></div>
@@ -305,6 +325,31 @@ if (CA) {
   document.querySelectorAll('.js-enter').forEach(function(a){ a.title = "Launching soon"; });
 }
 function fallbackCopy(){ var t=document.createElement('textarea'); t.value=CA; document.body.appendChild(t); t.select(); try{document.execCommand('copy');}catch(e){} t.remove(); }
+
+/* ---------- decision gates ---------- */
+(function(){
+  function gatesUpTo(max){ var g = [15000, 30000, 60000, 100000]; while (g[g.length-1] + 50000 <= max) g.push(g[g.length-1] + 50000); return g.filter(function(x){ return x <= max; }); }
+  function nextGate(m){ var g = [15000, 30000, 60000, 100000]; for (var i = 0; i < g.length; i++) if (g[i] > m) return g[i]; return 100000 + (Math.floor((m - 100000)/50000) + 1)*50000; }
+  function fmt(v){ return v >= 1000000 ? "$" + (v/1000000).toFixed(v % 1000000 ? 2 : 0) + "M" : "$" + Math.round(v/1000) + "K"; }
+  var band = document.getElementById('gate-band'), show = [15000,30000,60000,100000,150000,200000,250000,300000];
+  band.innerHTML = show.map(function(g){ return '<span data-g="' + g + '">' + fmt(g) + '</span>'; }).join("") + '<span>+$50K EACH</span>';
+  var mc = document.getElementById('mcap'), out = document.getElementById('mcap-out'), read = document.getElementById('gate-read');
+  function upd(){
+    var m = +mc.value, done = gatesUpTo(m);
+    out.textContent = m ? "$" + m.toLocaleString() : "$0";
+    band.querySelectorAll('[data-g]').forEach(function(sp){ var on = +sp.dataset.g <= m; sp.style.background = on ? "var(--gold)" : ""; sp.style.color = on ? "#120E05" : ""; });
+    read.innerHTML = done.length
+      ? "At " + out.textContent + ", the swarm has passed <b>" + done.length + " gate" + (done.length > 1 ? "s" : "") + "</b> and made " + done.length + " allocation decision" + (done.length > 1 ? "s" : "") + ". The next gate is at <b>" + fmt(nextGate(m)) + "</b>."
+      : "Below $15K, the swarm doesn't allocate anything yet. The first gate is at <b>$15K</b>.";
+  }
+  mc.addEventListener('input', upd); upd();
+  var sol = document.getElementById('sol'), split = document.getElementById('split-read');
+  function upd2(){
+    var v = Math.max(0, parseFloat(sol.value) || 0), r = function(x){ return (Math.round(x*100)/100).toLocaleString(); };
+    split.innerHTML = "With <b>" + r(v) + " SOL</b> in the treasury at a gate, <b>" + r(v*0.6) + " SOL</b> is allocated by the swarm's decision and <b>" + r(v*0.4) + " SOL</b> is carried into the next gate.";
+  }
+  sol.addEventListener('input', upd2); upd2();
+})();
 
 /* ---------- brain regions ---------- */
 var R = [
@@ -403,7 +448,8 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
   var W = cv.width, H = cv.height, HX = W/2, HY = H/2, N = 50, M_PER_PX = 10;
   var COLORS = ["#E9AE34", "#6FA8DC", "#E07B39", "#9FD6A0", "#C9A3E6"];
   var UNC = "#6E6758";
-  var mode = "nest", TREAS = ["Buy back", "Burn", "Buy back + burn", "Hold reserve", "Add liquidity"];
+  var mode = "nest", phase = "pre";
+  var PRE = ["Buyback + burn", "Retain for marketing"], POST = ["Buyback + burn", "Buyback + liquidity", "Preserve capital", "Giggle Academy"];
   var agents, sites, t, running = true, speed = 1, decided, selected = 26, lastStopLog, visible = false;
   var logEl = document.getElementById('log'), bannerEl = document.getElementById('banner');
   var qEl = document.getElementById('quorum'), qOut = document.getElementById('q-out'), stopEl = document.getElementById('sim-stop');
@@ -414,11 +460,14 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
   function log(html){ var li = document.createElement('li'); li.innerHTML = "<b>t" + t + "</b> " + html; logEl.prepend(li); while (logEl.children.length > 9) logEl.lastChild.remove(); }
   function reset(){
     t = 0; decided = null; lastStopLog = -999; logEl.innerHTML = ""; bannerEl.hidden = true;
-    sites = []; var n = 5, base = rnd(0, Math.PI*2);
-    var qs = [rnd(.82,.95), rnd(.55,.75), rnd(.45,.7), rnd(.25,.5), rnd(.2,.45)].sort(function(){ return Math.random() - .5; });
+    sites = []; var base = rnd(0, Math.PI*2), names, qs;
+    if (mode === "nest"){ names = ["Site A","Site B","Site C","Site D","Site E"]; qs = [rnd(.82,.95), rnd(.55,.75), rnd(.45,.7), rnd(.25,.5), rnd(.2,.45)].sort(function(){ return Math.random() - .5; }); }
+    else if (phase === "pre"){ names = PRE; qs = [rnd(.72,.95), rnd(.3,.62)]; }  /* pre-migration weighting favors buyback + burn */
+    else { names = POST; qs = [rnd(.82,.95), rnd(.55,.75), rnd(.4,.65), rnd(.3,.6)].sort(function(){ return Math.random() - .5; }); }
+    var n = names.length;
     for (var i = 0; i < n; i++){
-      var a = base + i*(Math.PI*2/n) + rnd(-.3,.3), r = rnd(150, 230);
-      sites.push({ id: "ABCDE"[i], name: mode === "nest" ? "Site " + "ABCDE"[i] : TREAS[i], x: HX + Math.cos(a)*r*1.45, y: HY + Math.sin(a)*r*.95, q: qs[i], col: COLORS[i], at: 0, sup: 0 });
+      var a = base + i*(Math.PI*2/n) + rnd(-.3,.3), r = n === 2 ? rnd(190, 230) : rnd(150, 230);
+      sites.push({ id: "ABCDE"[i], name: names[i], x: HX + Math.cos(a)*r*1.45, y: HY + Math.sin(a)*r*.95, q: qs[i], col: COLORS[i], at: 0, sup: 0 });
     }
     agents = [];
     for (var j = 0; j < N; j++){
@@ -426,9 +475,9 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
       agents.push({ i: j, x: HX + Math.cos(aa)*rr, y: HY + Math.sin(aa)*rr, st: "rest", site: null, enth: 0, trips: 0, timer: 0, hd: rnd(-Math.PI, Math.PI), mem: null, sensed: 0 });
     }
     for (var k = 0; k < 8; k++){ startExplore(agents[Math.floor(Math.random()*N)]); }
-    log(mode === "nest" ? "A new swarm has clustered. Scouts head out to search." : "A new treasury round opens. Agents start scoring options.");
+    log(mode === "nest" ? "A new swarm has clustered. Scouts head out to search." : (phase === "pre" ? "Gate reached, pre-migration. Agents start scoring options." : "Gate reached, post-migration. Agents start scoring options."));
     document.getElementById("sites-title").textContent = mode === "nest" ? "CANDIDATE SITES" : "TREASURY OPTIONS";
-    document.getElementById("sites-note").textContent = mode === "nest" ? "Quality is shown here for you. The bees never see it directly. Each one judges a site for herself when she visits." : "Demo only: option scores here are random and no funds move. In the live colony, agents score each option from conditions at the time.";
+    document.getElementById("sites-note").textContent = mode === "nest" ? "Quality is shown here for you. The bees never see it directly. Each one judges a site for herself when she visits." : (phase === "pre" ? "Demo only: scores are random, weighted toward buyback + burn as they are before migration. No funds move." : "Demo only: option scores here are random and no funds move. In the live colony, agents score each option from conditions at the time.");
     buildHexes(); renderPanels();
   }
   /* dance circuits rise steeply with judged quality; weak sites get little or no dancing */
@@ -519,7 +568,7 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
     bannerEl.hidden = false;
     bannerEl.innerHTML = "The colony chose <b>" + s.name + "</b> (" + (mode === "nest" ? "quality " : "score ") + Math.round(s.q*100) + ") at t" + t + ". " +
       (s === best ? "That was the strongest option available." : "The strongest option was <b>" + best.name + "</b> (" + Math.round(best.q*100) + "). Try raising the quorum for a slower, more careful decision.") +
-      " Press <b>NEW SWARM</b> to run it again.";
+      " " + (mode === "treasury" ? "At a real gate, 60% of the treasury would go to <b>" + s.name + "</b> and 40% would carry forward to the next gate. " : "") + "Press <b>NEW SWARM</b> to run it again.";
   }
   function stateText(a){
     var sid = a.site ? a.site.name : "";
@@ -588,8 +637,16 @@ function onScreen(el, cb){ if (!('IntersectionObserver' in window)) { cb(true); 
   function setMode(m){
     mode = m;
     [["mode-nest","nest"],["mode-treasury","treasury"]].forEach(function(p){ var b = document.getElementById(p[0]), on = p[1] === m; b.classList.toggle("ghost", !on); b.setAttribute("aria-pressed", on); });
+    document.getElementById("phase-group").hidden = m !== "treasury";
     reset(); draw();
   }
+  function setPhase(p){
+    phase = p;
+    [["phase-pre","pre"],["phase-post","post"]].forEach(function(q){ var b = document.getElementById(q[0]), on = q[1] === p; b.classList.toggle("ghost", !on); b.setAttribute("aria-pressed", on); });
+    reset(); draw();
+  }
+  document.getElementById("phase-pre").addEventListener("click", function(){ setPhase("pre"); });
+  document.getElementById("phase-post").addEventListener("click", function(){ setPhase("post"); });
   document.getElementById("mode-nest").addEventListener("click", function(){ setMode("nest"); });
   document.getElementById("mode-treasury").addEventListener("click", function(){ setMode("treasury"); });
   document.getElementById("goto-treasury").addEventListener("click", function(){ setMode("treasury"); });
